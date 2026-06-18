@@ -1,0 +1,472 @@
+/**
+ * WP SMS Panel — Admin Settings Page Styles
+ * Scoped to .wpsp-admin — does not affect global wp-admin chrome.
+ * RTL-aware: uses CSS logical properties throughout.
+ */
+
+/* =========================================================
+   CSS Custom Properties (design tokens)
+   ========================================================= */
+.wpsp-admin {
+    --wpsp-accent:      #2563eb;
+    --wpsp-accent-light:#eff6ff;
+    --wpsp-accent-dark: #1d4ed8;
+    --wpsp-success:     #16a34a;
+    --wpsp-danger:      #dc2626;
+    --wpsp-text-primary:   #111827;
+    --wpsp-text-secondary: #6b7280;
+    --wpsp-text-muted:     #9ca3af;
+    --wpsp-bg-page:    #f1f5f9;
+    --wpsp-bg-card:    #ffffff;
+    --wpsp-bg-field:   #f8fafc;
+    --wpsp-border:     #e2e8f0;
+    --wpsp-border-focus: #2563eb;
+    --wpsp-radius:     10px;
+    --wpsp-shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+    --wpsp-shadow-md:  0 4px 6px -1px rgba(0,0,0,.08), 0 2px 4px -1px rgba(0,0,0,.05);
+    --wpsp-font:       -apple-system, BlinkMacSystemFont, 'Segoe UI', Vazirmatn, Tahoma, sans-serif;
+    font-family: var(--wpsp-font);
+    direction: rtl;
+    color: var(--wpsp-text-primary);
+}
+
+/* =========================================================
+   Page layout
+   ========================================================= */
+.wpsp-admin {
+    max-width: 960px;
+    padding-block-end: 40px;
+}
+
+/* =========================================================
+   Page header
+   ========================================================= */
+.wpsp-page-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 22px 26px;
+    background: var(--wpsp-bg-card);
+    border-radius: var(--wpsp-radius);
+    box-shadow: var(--wpsp-shadow);
+    margin-block-end: 28px;
+    border-inline-start: 4px solid var(--wpsp-accent);
+}
+
+.wpsp-page-header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--wpsp-accent-light);
+    border-radius: 12px;
+    flex-shrink: 0;
+    color: var(--wpsp-accent);
+}
+
+.wpsp-page-header-icon svg {
+    width: 26px;
+    height: 26px;
+}
+
+.wpsp-page-header-body {
+    flex: 1;
+}
+
+.wpsp-page-header-body h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--wpsp-text-primary);
+    margin: 0 0 4px;
+    padding: 0;
+    line-height: 1.3;
+}
+
+.wpsp-page-header-body p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--wpsp-text-secondary);
+    line-height: 1.5;
+}
+
+.wpsp-provider-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: var(--wpsp-accent-light);
+    color: var(--wpsp-accent-dark);
+    border: 1px solid rgba(37,99,235,.2);
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.wpsp-provider-pill-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--wpsp-accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   Card
+   ========================================================= */
+.wpsp-card {
+    background: var(--wpsp-bg-card);
+    border-radius: var(--wpsp-radius);
+    box-shadow: var(--wpsp-shadow);
+    margin-block-end: 20px;
+    overflow: hidden;
+    transition: box-shadow 0.15s ease;
+}
+
+.wpsp-card:hover {
+    box-shadow: var(--wpsp-shadow-md);
+}
+
+.wpsp-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 22px;
+    border-block-end: 1px solid var(--wpsp-border);
+    background: #fafbfc;
+}
+
+.wpsp-card-header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--wpsp-accent-light);
+    border-radius: 8px;
+    flex-shrink: 0;
+    color: var(--wpsp-accent);
+}
+
+.wpsp-card-header-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+.wpsp-card-title {
+    font-size: 0.95rem;
+    font-weight: 650;
+    color: var(--wpsp-text-primary);
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+}
+
+.wpsp-card-body {
+    padding: 22px 22px 10px;
+}
+
+/* =========================================================
+   Two-column card grid
+   ========================================================= */
+.wpsp-card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-block-end: 20px;
+}
+
+@media (max-width: 720px) {
+    .wpsp-card-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   Field rows (replaces form-table)
+   ========================================================= */
+.wpsp-field-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding-block-end: 18px;
+    border-block-end: 1px solid var(--wpsp-border);
+    margin-block-end: 18px;
+}
+
+.wpsp-field-row:last-child {
+    border-block-end: none;
+    padding-block-end: 0;
+    margin-block-end: 0;
+}
+
+.wpsp-field-label {
+    flex: 0 0 200px;
+    padding-block-start: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--wpsp-text-primary);
+    line-height: 1.5;
+}
+
+.wpsp-field-label .required-star {
+    color: var(--wpsp-danger);
+    margin-inline-start: 2px;
+}
+
+.wpsp-field-control {
+    flex: 1;
+    min-width: 0;
+}
+
+@media (max-width: 600px) {
+    .wpsp-field-row {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .wpsp-field-label {
+        flex: none;
+        padding-block-start: 0;
+    }
+}
+
+/* =========================================================
+   Form control overrides (inputs, selects, textareas)
+   ========================================================= */
+.wpsp-admin input[type="text"],
+.wpsp-admin input[type="password"],
+.wpsp-admin input[type="tel"],
+.wpsp-admin input[type="number"],
+.wpsp-admin select,
+.wpsp-admin textarea {
+    background: var(--wpsp-bg-field);
+    border: 1px solid var(--wpsp-border);
+    border-radius: 6px;
+    padding: 7px 11px;
+    font-size: 0.875rem;
+    font-family: var(--wpsp-font);
+    color: var(--wpsp-text-primary);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    box-shadow: none;
+    outline: none;
+}
+
+.wpsp-admin input[type="text"]:focus,
+.wpsp-admin input[type="password"]:focus,
+.wpsp-admin input[type="tel"]:focus,
+.wpsp-admin input[type="number"]:focus,
+.wpsp-admin select:focus,
+.wpsp-admin textarea:focus {
+    border-color: var(--wpsp-border-focus);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    background-color: #fff;
+}
+
+.wpsp-admin select {
+    padding-inline-end: 28px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 10px center;
+    background-size: 12px;
+}
+
+.wpsp-admin select::-ms-expand {
+    display: none;
+}
+
+.wpsp-admin input.regular-text {
+    width: 100%;
+    max-width: 340px;
+}
+
+.wpsp-admin input.small-text {
+    width: 72px;
+    text-align: center;
+}
+
+.wpsp-admin textarea.large-text {
+    width: 100%;
+    max-width: 400px;
+    resize: vertical;
+}
+
+/* =========================================================
+   Description text
+   ========================================================= */
+.wpsp-admin .description {
+    display: block;
+    margin-block-start: 6px;
+    font-size: 0.8rem;
+    color: var(--wpsp-text-secondary);
+    line-height: 1.6;
+}
+
+/* =========================================================
+   Checkbox row
+   ========================================================= */
+.wpsp-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--wpsp-text-primary);
+    line-height: 1.5;
+}
+
+.wpsp-checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--wpsp-accent);
+    flex-shrink: 0;
+    margin: 0;
+}
+
+/* =========================================================
+   Color picker row
+   ========================================================= */
+.wpsp-color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.wpsp-color-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.wpsp-color-item label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--wpsp-text-secondary);
+}
+
+/* Make wp-color-picker wrap properly in grid */
+.wpsp-color-item .wp-picker-container {
+    display: block;
+}
+
+/* =========================================================
+   Test section
+   ========================================================= */
+.wpsp-test-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.wpsp-test-row input[type="tel"] {
+    flex: 0 0 200px;
+}
+
+.wpsp-test-result {
+    width: 100%;
+    margin-block-start: 10px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    min-height: 20px;
+}
+
+/* =========================================================
+   Buttons
+   ========================================================= */
+.wpsp-admin .button {
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-family: var(--wpsp-font);
+    transition: background-color 0.12s, border-color 0.12s, box-shadow 0.12s;
+}
+
+.wpsp-admin .button-primary {
+    background: var(--wpsp-accent);
+    border-color: var(--wpsp-accent-dark);
+    color: #fff;
+}
+
+.wpsp-admin .button-primary:hover,
+.wpsp-admin .button-primary:focus {
+    background: var(--wpsp-accent-dark);
+    border-color: var(--wpsp-accent-dark);
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+/* =========================================================
+   Submit button area
+   ========================================================= */
+.wpsp-submit-bar {
+    display: flex;
+    align-items: center;
+    padding: 16px 22px;
+    background: #fafbfc;
+    border-block-start: 1px solid var(--wpsp-border);
+    border-radius: 0 0 var(--wpsp-radius) var(--wpsp-radius);
+    margin-block-start: 4px;
+}
+
+.wpsp-submit-bar .button-primary {
+    padding: 8px 24px;
+    height: auto;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* =========================================================
+   Provider-fields visibility (JS-controlled, keep intact)
+   ========================================================= */
+/* JS uses $(el).toggle() which writes display inline — no override needed.
+   The data-provider attribute and display:none inline style are preserved. */
+
+/* =========================================================
+   Radius slider helper (visual note)
+   ========================================================= */
+.wpsp-radius-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wpsp-radius-row .small-text {
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   Notification / admin notices inside wpsp-admin
+   ========================================================= */
+.wpsp-admin .notice {
+    border-radius: 6px;
+    border-inline-start-width: 4px;
+}
+
+/* =========================================================
+   Divider between form and test section
+   ========================================================= */
+.wpsp-section-divider {
+    border: none;
+    border-block-start: 1px solid var(--wpsp-border);
+    margin: 8px 0 28px;
+}
+
+/* =========================================================
+   Utilities
+   ========================================================= */
+.wpsp-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border-width: 0;
+}

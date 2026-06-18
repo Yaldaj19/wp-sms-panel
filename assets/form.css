@@ -1,0 +1,162 @@
+/* WP SMS Panel — scoped OTP form styles (theme-agnostic, colors via CSS vars) */
+.wpsp-form {
+    --rs-accent: #2563eb;
+    --rs-btn-text: #ffffff;
+    --rs-card-bg: #ffffff;
+    --rs-field-bg: #f7f8fa;
+    --rs-border: #e5e7eb;
+    --rs-radius: 10px;
+
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 24px 22px;
+    text-align: center;
+    background: var(--rs-card-bg);
+    border: 1px solid var(--rs-border);
+    border-radius: calc(var(--rs-radius) + 6px);
+    box-shadow: 0 6px 24px rgba(17, 24, 39, .07);
+}
+
+.wpsp-form *,
+.wpsp-form *::before,
+.wpsp-form *::after { box-sizing: border-box; }
+
+.wpsp-form .rs-step {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* --- inputs --- */
+.wpsp-form .rs-input {
+    width: 100%;
+    padding: 13px 14px;
+    font-size: 15px;
+    text-align: center;
+    color: #1f2937;
+    background: var(--rs-field-bg);
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius);
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.wpsp-form .rs-input::placeholder { color: #9aa0a6; }
+
+.wpsp-form .rs-input:focus {
+    border-color: var(--rs-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--rs-accent) 16%, transparent);
+}
+
+/* --- OTP boxes --- */
+.wpsp-form .rs-otp {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 2px 0 4px;
+}
+
+.wpsp-form .rs-otp-box {
+    width: 46px;
+    height: 54px;
+    padding: 0;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1f2937;
+    background: var(--rs-field-bg);
+    border: 1.5px solid var(--rs-border);
+    border-radius: var(--rs-radius);
+    outline: none;
+    transition: border-color .15s, box-shadow .15s, transform .12s;
+}
+
+.wpsp-form .rs-otp-box:focus {
+    border-color: var(--rs-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--rs-accent) 16%, transparent);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 380px) {
+    .wpsp-form { padding: 20px 16px; }
+    .wpsp-form .rs-otp-box { width: 40px; height: 48px; font-size: 19px; }
+    .wpsp-form .rs-otp { gap: 6px; }
+}
+
+/* --- buttons --- */
+.wpsp-form .rs-btn {
+    position: relative;
+    width: 100%;
+    padding: 13px 16px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--rs-btn-text);
+    background: var(--rs-accent);
+    border: 0;
+    border-radius: var(--rs-radius);
+    cursor: pointer;
+    transition: filter .2s, opacity .2s, transform .1s;
+}
+
+.wpsp-form .rs-btn:hover:not(:disabled) { filter: brightness(.93); }
+.wpsp-form .rs-btn:active:not(:disabled) { transform: translateY(1px); }
+.wpsp-form .rs-btn:disabled { opacity: .65; cursor: default; }
+
+.wpsp-form .rs-btn.rs-loading .rs-btn-label { visibility: hidden; }
+.wpsp-form .rs-btn.rs-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 18px;
+    height: 18px;
+    margin: -9px 0 0 -9px;
+    border: 2px solid color-mix(in srgb, var(--rs-btn-text) 45%, transparent);
+    border-top-color: var(--rs-btn-text);
+    border-radius: 50%;
+    animation: rs-spin .7s linear infinite;
+}
+
+@keyframes rs-spin { to { transform: rotate(360deg); } }
+
+/* --- code step extras --- */
+.wpsp-form .rs-code-hint {
+    margin: 0 0 2px;
+    font-size: 13px;
+    color: #4b5563;
+    line-height: 2;
+}
+
+.wpsp-form .rs-code-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.wpsp-form .rs-link {
+    background: none;
+    border: 0;
+    padding: 4px 2px;
+    font-size: 12px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: color .2s;
+}
+
+.wpsp-form .rs-link:hover:not([disabled]) { color: var(--rs-accent); }
+.wpsp-form .rs-link[disabled] { cursor: default; opacity: .7; }
+
+/* --- message --- */
+.wpsp-form .rs-message {
+    min-height: 1.4em;
+    margin: 12px 0 0;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.wpsp-form .rs-message.rs-error { color: #dc2626; }
+.wpsp-form .rs-message.rs-ok { color: #059669; }
