@@ -47,4 +47,20 @@
     $("#wpsp-credit-btn").on("click", function () {
         call("wp_sms_panel_credit", {}, $(this), WPSMSPanelAdmin.i18n.checking);
     });
+
+    // Clear logs.
+    $("#wpsp-clear-logs").on("click", function () {
+        if (!window.confirm(WPSMSPanelAdmin.i18n.confirmClear)) { return; }
+        var $btn = $(this);
+        $btn.prop("disabled", true);
+        $.post(WPSMSPanelAdmin.ajaxurl, { action: "wp_sms_panel_clear_logs", nonce: WPSMSPanelAdmin.nonce })
+            .done(function (res) {
+                if (res && res.success) {
+                    $("#wpsp-log-body").html(
+                        '<tr><td colspan="6" class="wpsp-log-empty">' + WPSMSPanelAdmin.i18n.logsCleared + "</td></tr>"
+                    );
+                }
+            })
+            .always(function () { $btn.prop("disabled", false); });
+    });
 })(jQuery);

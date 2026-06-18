@@ -36,6 +36,7 @@ class WP_SMS_Panel_Settings {
 
 		add_action( 'wp_ajax_wp_sms_panel_test', array( $this, 'ajax_test' ) );
 		add_action( 'wp_ajax_wp_sms_panel_credit', array( $this, 'ajax_credit' ) );
+		add_action( 'wp_ajax_wp_sms_panel_clear_logs', array( $this, 'ajax_clear_logs' ) );
 	}
 
 	/* ---------------------------------------------------------------------
@@ -192,9 +193,11 @@ class WP_SMS_Panel_Settings {
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'wp_sms_panel_admin' ),
 				'i18n'    => array(
-					'testing'  => __( 'در حال ارسال…', 'wp-sms-panel' ),
-					'checking' => __( 'در حال استعلام…', 'wp-sms-panel' ),
-					'error'    => __( 'خطا در ارتباط.', 'wp-sms-panel' ),
+					'testing'      => __( 'در حال ارسال…', 'wp-sms-panel' ),
+					'checking'     => __( 'در حال استعلام…', 'wp-sms-panel' ),
+					'error'        => __( 'خطا در ارتباط.', 'wp-sms-panel' ),
+					'confirmClear' => __( 'همه‌ی لاگ‌ها پاک شوند؟', 'wp-sms-panel' ),
+					'logsCleared'  => __( 'لاگی ثبت نشده است.', 'wp-sms-panel' ),
 				),
 			)
 		);
@@ -520,6 +523,73 @@ class WP_SMS_Panel_Settings {
 				</div>
 			</div>
 
+			<!-- ===== Logs section ===== -->
+			<?php
+			$logs           = WP_SMS_Panel_Logger::recent( 50 );
+			$provider_names = WP_SMS_Panel_Provider_Registry::choices();
+			$type_names     = array(
+				'send' => __( 'ارسال', 'wp-sms-panel' ),
+				'otp'  => __( 'کد OTP', 'wp-sms-panel' ),
+				'test' => __( 'تست', 'wp-sms-panel' ),
+			);
+			?>
+			<div class="wpsp-card">
+				<div class="wpsp-card-header">
+					<div class="wpsp-card-header-icon" aria-hidden="true">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+							<polyline points="14 2 14 8 20 8"></polyline>
+							<line x1="16" y1="13" x2="8" y2="13"></line>
+							<line x1="16" y1="17" x2="8" y2="17"></line>
+						</svg>
+					</div>
+					<h2 class="wpsp-card-title"><?php esc_html_e( 'لاگ‌ها', 'wp-sms-panel' ); ?></h2>
+					<button type="button" class="button wpsp-clear-logs" id="wpsp-clear-logs"><?php esc_html_e( 'پاک کردن لاگ‌ها', 'wp-sms-panel' ); ?></button>
+				</div>
+				<div class="wpsp-card-body">
+					<p class="description" style="margin-block-end:14px"><?php esc_html_e( 'آخرین ۵۰ تلاش ارسال پیامک. کد OTP در لاگ ذخیره نمی‌شود.', 'wp-sms-panel' ); ?></p>
+					<div class="wpsp-log-wrap">
+						<table class="wpsp-log-table">
+							<thead>
+								<tr>
+									<th><?php esc_html_e( 'تاریخ', 'wp-sms-panel' ); ?></th>
+									<th><?php esc_html_e( 'شماره', 'wp-sms-panel' ); ?></th>
+									<th><?php esc_html_e( 'درگاه', 'wp-sms-panel' ); ?></th>
+									<th><?php esc_html_e( 'نوع', 'wp-sms-panel' ); ?></th>
+									<th><?php esc_html_e( 'وضعیت', 'wp-sms-panel' ); ?></th>
+									<th><?php esc_html_e( 'توضیح / خطا', 'wp-sms-panel' ); ?></th>
+								</tr>
+							</thead>
+							<tbody id="wpsp-log-body">
+								<?php if ( empty( $logs ) ) : ?>
+									<tr><td colspan="6" class="wpsp-log-empty"><?php esc_html_e( 'هنوز لاگی ثبت نشده است.', 'wp-sms-panel' ); ?></td></tr>
+								<?php else : ?>
+									<?php foreach ( $logs as $row ) : ?>
+										<?php
+										$is_err   = ( 'error' === $row['status'] );
+										$prov_lbl = isset( $provider_names[ $row['provider'] ] ) ? $provider_names[ $row['provider'] ] : $row['provider'];
+										$type_lbl = isset( $type_names[ $row['type'] ] ) ? $type_names[ $row['type'] ] : $row['type'];
+										?>
+										<tr>
+											<td class="wpsp-log-date" dir="ltr"><?php echo esc_html( $row['created_at'] ); ?></td>
+											<td dir="ltr"><?php echo esc_html( $row['phone'] ); ?></td>
+											<td><?php echo esc_html( $prov_lbl ); ?></td>
+											<td><?php echo esc_html( $type_lbl ); ?></td>
+											<td>
+												<span class="wpsp-badge <?php echo $is_err ? 'wpsp-badge-err' : 'wpsp-badge-ok'; ?>">
+													<?php echo $is_err ? esc_html__( 'خطا', 'wp-sms-panel' ) : esc_html__( 'موفق', 'wp-sms-panel' ); ?>
+												</span>
+											</td>
+											<td class="wpsp-log-note"><?php echo esc_html( $row['note'] ); ?></td>
+										</tr>
+									<?php endforeach; ?>
+								<?php endif; ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
 		</div><!-- /.wrap.wpsp-admin -->
 		<?php
 	}
@@ -563,5 +633,15 @@ class WP_SMS_Panel_Settings {
 		}
 
 		wp_send_json_success( array( 'message' => sprintf( __( 'اعتبار باقی‌مانده: %s', 'wp-sms-panel' ), $credit ) ) );
+	}
+
+	public function ajax_clear_logs() {
+		if ( ! current_user_can( self::CAP ) ) {
+			wp_send_json_error( array( 'message' => __( 'دسترسی ندارید.', 'wp-sms-panel' ) ) );
+		}
+		check_ajax_referer( 'wp_sms_panel_admin', 'nonce' );
+
+		WP_SMS_Panel_Logger::clear();
+		wp_send_json_success( array( 'message' => __( 'لاگ‌ها پاک شد.', 'wp-sms-panel' ) ) );
 	}
 }

@@ -29,6 +29,7 @@ define( 'WP_SMS_PANEL_OPTION', 'wp_sms_panel_settings' );
 require_once WP_SMS_PANEL_DIR . 'includes/interface-provider.php';
 require_once WP_SMS_PANEL_DIR . 'includes/abstract-provider.php';
 require_once WP_SMS_PANEL_DIR . 'includes/class-provider-registry.php';
+require_once WP_SMS_PANEL_DIR . 'includes/class-logger.php';
 require_once WP_SMS_PANEL_DIR . 'includes/class-sms.php';
 require_once WP_SMS_PANEL_DIR . 'includes/class-settings.php';
 require_once WP_SMS_PANEL_DIR . 'includes/class-otp.php';
@@ -40,6 +41,7 @@ function wp_sms_panel_init() {
 	load_plugin_textdomain( 'wp-sms-panel', false, dirname( plugin_basename( WP_SMS_PANEL_FILE ) ) . '/languages' );
 
 	WP_SMS_Panel_Provider_Registry::boot();
+	WP_SMS_Panel_Logger::maybe_install();
 	WP_SMS_Panel_Settings::instance();
 	WP_SMS_Panel_OTP::instance();
 }
@@ -50,7 +52,9 @@ add_action( 'plugins_loaded', 'wp_sms_panel_init' );
  */
 function wp_sms_panel_activate() {
 	require_once WP_SMS_PANEL_DIR . 'includes/class-settings.php';
+	require_once WP_SMS_PANEL_DIR . 'includes/class-logger.php';
 	WP_SMS_Panel_Settings::install_defaults();
+	WP_SMS_Panel_Logger::install();
 }
 register_activation_hook( __FILE__, 'wp_sms_panel_activate' );
 

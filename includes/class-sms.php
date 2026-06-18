@@ -93,6 +93,8 @@ class WP_SMS_Panel_SMS {
 
 		$result = $provider->send( $phone, $message, self::provider_config( $provider->get_key() ) );
 
+		WP_SMS_Panel_Logger::record( $phone, $provider->get_key(), 'send', $result );
+
 		/**
 		 * Fires after an SMS send attempt.
 		 *
@@ -125,7 +127,11 @@ class WP_SMS_Panel_SMS {
 			return $provider;
 		}
 
-		return $provider->send_otp( $phone, $code, $message, self::provider_config( $provider->get_key() ) );
+		$result = $provider->send_otp( $phone, $code, $message, self::provider_config( $provider->get_key() ) );
+
+		WP_SMS_Panel_Logger::record( $phone, $provider->get_key(), 'otp', $result );
+
+		return $result;
 	}
 
 	/**
