@@ -30,7 +30,7 @@ class WP_SMS_Panel_SMS {
 			'otp_length'      => 5,
 			'otp_ttl'         => 120,
 			'otp_message'     => __( 'کد ورود شما: {code}', 'wp-sms-panel' ),
-			'login_page'      => 1,
+			'login_page'      => 0,
 			'login_title'     => __( 'ورود / ثبت‌نام با موبایل', 'wp-sms-panel' ),
 			'style'           => array(
 				'accent'      => '#2563eb',
