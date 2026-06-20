@@ -175,4 +175,59 @@
         }, 1000);
         $form.data("rsTimer", id);
     }
+
+    /* ---- Mode switch (phone <-> password) ---- */
+    $(document).on("click", ".wpsp-form .rs-tab", function () {
+        var $tab = $(this);
+        var $form = $tab.closest(".wpsp-form");
+        var showPass = ($tab.data("mode") === "pass");
+
+        $form.find(".rs-tab").removeClass("is-active").attr("aria-selected", "false");
+        $tab.addClass("is-active").attr("aria-selected", "true");
+
+        $form.find(".rs-mode-phone").attr("hidden", showPass ? true : null);
+        $form.find(".rs-mode-pass").attr("hidden", showPass ? null : true);
+        setMessage($form, "");
+        $form.find(showPass ? ".rs-user" : ".rs-phone").trigger("focus");
+    });
+
+    /* ---- Password login ---- */
+    function passwordLogin($form) {
+        var $btn = $form.find(".rs-pass-login");
+        var login = ($form.find(".rs-user").val() || "").trim();
+        var password = $form.find(".rs-pass").val() || "";
+        setMessage($form, "");
+
+        if (!login || !password) {
+            setMessage($form, WPSMSPanel.i18n.enterCreds, "error");
+            return;
+        }
+
+        setLoading($btn, true);
+        ajax("wp_sms_panel_password", { login: login, password: password, redirect: window.location.href })
+            .done(function (res) {
+                if (res && res.success) {
+                    setMessage($form, WPSMSPanel.i18n.success || "", "ok");
+                    window.location.href = res.data.redirect;
+                } else {
+                    setMessage($form, (res.data && res.data.message) || WPSMSPanel.i18n.error, "error");
+                    setLoading($btn, false);
+                }
+            })
+            .fail(function () {
+                setMessage($form, WPSMSPanel.i18n.error, "error");
+                setLoading($btn, false);
+            });
+    }
+
+    $(document).on("click", ".wpsp-form .rs-pass-login", function () {
+        passwordLogin($(this).closest(".wpsp-form"));
+    });
+
+    $(document).on("keydown", ".wpsp-form .rs-user, .wpsp-form .rs-pass", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            passwordLogin($(this).closest(".wpsp-form"));
+        }
+    });
 })(jQuery);

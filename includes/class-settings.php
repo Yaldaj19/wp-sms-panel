@@ -143,8 +143,9 @@ class WP_SMS_Panel_Settings {
 		$out['otp_ttl']     = isset( $input['otp_ttl'] ) ? max( 30, min( 600, (int) $input['otp_ttl'] ) ) : 120;
 		$out['otp_message'] = isset( $input['otp_message'] ) ? sanitize_textarea_field( $input['otp_message'] ) : WP_SMS_Panel_SMS::defaults()['otp_message'];
 
-		$out['login_page']  = empty( $input['login_page'] ) ? 0 : 1;
-		$out['login_title'] = isset( $input['login_title'] ) ? sanitize_text_field( $input['login_title'] ) : WP_SMS_Panel_SMS::defaults()['login_title'];
+		$out['login_page']     = empty( $input['login_page'] ) ? 0 : 1;
+		$out['login_title']    = isset( $input['login_title'] ) ? sanitize_text_field( $input['login_title'] ) : WP_SMS_Panel_SMS::defaults()['login_title'];
+		$out['password_login'] = empty( $input['password_login'] ) ? 0 : 1;
 
 		$style        = isset( $input['style'] ) && is_array( $input['style'] ) ? $input['style'] : array();
 		$out['style'] = array(
@@ -394,7 +395,21 @@ class WP_SMS_Panel_Settings {
 											<?php checked( ! empty( $settings['login_page'] ) ); ?>>
 										<?php esc_html_e( 'فعال‌سازی فرم ورود با موبایل (OTP)', 'wp-sms-panel' ); ?>
 									</label>
-									<span class="description"><?php esc_html_e( 'فرم ورود با شماره موبایل بالای فرم پیش‌فرض وردپرس نمایش داده می‌شود.', 'wp-sms-panel' ); ?></span>
+									<span class="description"><?php esc_html_e( 'وقتی روشن باشد، فرم ورود با موبایل روی صفحه ورود وردپرس نمایش داده می‌شود و فرم پیش‌فرض پشت یک دکمه پنهان می‌ماند. وقتی خاموش باشد، صفحه ورود کاملاً دست‌نخورده می‌ماند.', 'wp-sms-panel' ); ?></span>
+								</div>
+							</div>
+							<div class="wpsp-field-row">
+								<div class="wpsp-field-label">
+									<?php esc_html_e( 'ورود با رمز عبور', 'wp-sms-panel' ); ?>
+								</div>
+								<div class="wpsp-field-control">
+									<label class="wpsp-checkbox-label">
+										<input type="checkbox" value="1"
+											name="<?php echo esc_attr( WP_SMS_PANEL_OPTION ); ?>[password_login]"
+											<?php checked( ! empty( $settings['password_login'] ) ); ?>>
+										<?php esc_html_e( 'نمایش گزینه‌ی ورود با نام کاربری/ایمیل و رمز عبور در فرم', 'wp-sms-panel' ); ?>
+									</label>
+									<span class="description"><?php esc_html_e( 'پیش‌فرض خاموش است؛ فرم فقط یک فیلد شماره موبایل دارد. با روشن کردن، یک دکمه برای ورود با نام کاربری/ایمیل و رمز هم اضافه می‌شود.', 'wp-sms-panel' ); ?></span>
 								</div>
 							</div>
 							<div class="wpsp-field-row">

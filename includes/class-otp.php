@@ -40,6 +40,19 @@ class WP_SMS_Panel_OTP {
 		add_action( 'wp_ajax_wp_sms_panel_send', array( $this, 'ajax_send' ) );
 		add_action( 'wp_ajax_nopriv_wp_sms_panel_verify', array( $this, 'ajax_verify' ) );
 		add_action( 'wp_ajax_wp_sms_panel_verify', array( $this, 'ajax_verify' ) );
+
+		// Username/email + password login (only honoured when the setting is on).
+		add_action( 'wp_ajax_nopriv_wp_sms_panel_password', array( $this, 'ajax_password' ) );
+		add_action( 'wp_ajax_wp_sms_panel_password', array( $this, 'ajax_password' ) );
+	}
+
+	/**
+	 * Whether the password-login option is enabled.
+	 *
+	 * @return bool
+	 */
+	private function password_enabled() {
+		return ! empty( $this->setting( 'password_login', 0 ) );
 	}
 
 	/* ---------------------------------------------------------------------
@@ -77,6 +90,7 @@ class WP_SMS_Panel_OTP {
 					'error'        => __( 'خطایی رخ داد. دوباره تلاش کنید.', 'wp-sms-panel' ),
 					'resend'       => __( 'ارسال مجدد', 'wp-sms-panel' ),
 					'editPhone'    => __( 'ویرایش شماره', 'wp-sms-panel' ),
+					'enterCreds'   => __( 'نام کاربری و رمز عبور را وارد کنید.', 'wp-sms-panel' ),
 				),
 			)
 		);
@@ -96,8 +110,28 @@ class WP_SMS_Panel_OTP {
 		<style>
 			#wpsp-login { margin-bottom: 16px; }
 			#wpsp-login .wpsp-login-title { margin: 0 0 10px; font-size: 14px; font-weight: 700; color: #1d2327; text-align: center; }
-			.wpsp-login-or { margin: 16px 0 2px; text-align: center; color: #787c82; font-size: 12px; }
+			#wpsp-show-native { display: block; width: 100%; margin: 14px auto 2px; text-align: center; }
+			/* Hidden only when JS is active, so no-JS users can always use the native form. */
+			.wpsp-hide-native #loginform { display: none; }
+			.wpsp-hide-native #nav { text-align: center; }
 		</style>
+		<script>
+			document.documentElement.classList.add( 'wpsp-hide-native' );
+			document.addEventListener( 'DOMContentLoaded', function () {
+				var btn  = document.getElementById( 'wpsp-show-native' );
+				var form = document.getElementById( 'loginform' );
+				if ( ! btn || ! form ) {
+					document.documentElement.classList.remove( 'wpsp-hide-native' );
+					return;
+				}
+				btn.addEventListener( 'click', function () {
+					document.documentElement.classList.remove( 'wpsp-hide-native' );
+					btn.setAttribute( 'hidden', '' );
+					var first = form.querySelector( 'input:not([type=hidden])' );
+					if ( first ) { first.focus(); }
+				} );
+			} );
+		</script>
 		<?php
 	}
 
@@ -122,9 +156,11 @@ class WP_SMS_Panel_OTP {
 
 		$html  = '<div id="wpsp-login">';
 		$html .= '<p class="wpsp-login-title">' . esc_html( $title ) . '</p>';
-		$html .= $this->render_form();
+		// Phone-only on wp-login.php; the native WP form is the password method.
+		$html .= $this->render_form( array( 'password_switch' => false ) );
+		$html .= '<button type="button" id="wpsp-show-native" class="button button-secondary">'
+			. esc_html__( 'ورود با نام کاربری و رمز', 'wp-sms-panel' ) . '</button>';
 		$html .= '</div>';
-		$html .= '<p class="wpsp-login-or">' . esc_html__( 'یا با نام کاربری و رمز عبور وارد شوید', 'wp-sms-panel' ) . '</p>';
 
 		return $html . $message;
 	}
@@ -200,10 +236,26 @@ class WP_SMS_Panel_OTP {
 			$style['radius']
 		);
 
+		// Tabs follow the setting, but callers (e.g. wp-login.php) can force phone-only.
+		$pass_on = isset( $atts['password_switch'] ) ? (bool) $atts['password_switch'] : $this->password_enabled();
+
 		ob_start();
 		?>
 		<div class="wpsp-form" style="<?php echo esc_attr( $css_style ); ?>"
-			data-digits="<?php echo esc_attr( $digits ); ?>">
+			data-digits="<?php echo esc_attr( $digits ); ?>" dir="rtl">
+
+			<?php if ( $pass_on ) : ?>
+			<!-- Mode switch -->
+			<div class="rs-switch" role="tablist" aria-label="<?php esc_attr_e( 'روش ورود', 'wp-sms-panel' ); ?>">
+				<button type="button" class="rs-tab rs-tab-phone is-active" role="tab"
+					aria-selected="true" data-mode="phone"><?php esc_html_e( 'با موبایل', 'wp-sms-panel' ); ?></button>
+				<button type="button" class="rs-tab rs-tab-pass" role="tab"
+					aria-selected="false" data-mode="pass"><?php esc_html_e( 'با رمز عبور', 'wp-sms-panel' ); ?></button>
+			</div>
+			<?php endif; ?>
+
+			<!-- Phone (OTP) mode -->
+			<div class="rs-mode rs-mode-phone" role="tabpanel">
 
 			<!-- Step 1: phone -->
 			<div class="rs-step rs-step-phone">
@@ -241,6 +293,25 @@ class WP_SMS_Panel_OTP {
 					</button>
 				</div>
 			</div>
+
+			</div><!-- /.rs-mode-phone -->
+
+			<?php if ( $pass_on ) : ?>
+			<!-- Password mode -->
+			<div class="rs-mode rs-mode-pass" role="tabpanel" hidden>
+				<div class="rs-step rs-step-password">
+					<input type="text" autocomplete="username" class="rs-input rs-user"
+						placeholder="<?php esc_attr_e( 'نام کاربری یا ایمیل', 'wp-sms-panel' ); ?>"
+						aria-label="<?php esc_attr_e( 'نام کاربری یا ایمیل', 'wp-sms-panel' ); ?>">
+					<input type="password" autocomplete="current-password" class="rs-input rs-pass"
+						placeholder="<?php esc_attr_e( 'رمز عبور', 'wp-sms-panel' ); ?>"
+						aria-label="<?php esc_attr_e( 'رمز عبور', 'wp-sms-panel' ); ?>">
+					<button type="button" class="rs-btn rs-pass-login">
+						<span class="rs-btn-label"><?php esc_html_e( 'ورود', 'wp-sms-panel' ); ?></span>
+					</button>
+				</div>
+			</div>
+			<?php endif; ?>
 
 			<p class="rs-message" role="status" aria-live="polite"></p>
 		</div>
@@ -348,6 +419,67 @@ class WP_SMS_Panel_OTP {
 			$redirect = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url( '/' );
 		}
 		wp_send_json_success( array( 'redirect' => $redirect ) );
+	}
+
+	/* ---------------------------------------------------------------------
+	 * AJAX — username/email + password login
+	 * ------------------------------------------------------------------- */
+
+	public function ajax_password() {
+		check_ajax_referer( 'wp_sms_panel', 'nonce' );
+
+		// Never trust the client: the form only renders this when the option is on,
+		// but re-verify server-side before doing any authentication.
+		if ( ! $this->password_enabled() ) {
+			wp_send_json_error( array( 'message' => __( 'این روش ورود فعال نیست.', 'wp-sms-panel' ) ) );
+		}
+
+		// IP-based brute-force throttle.
+		$ip  = $this->client_ip();
+		$key = 'wp_sms_panel_pw_fail_' . md5( $ip );
+		if ( (int) get_transient( $key ) >= 5 ) {
+			wp_send_json_error( array( 'message' => __( 'تلاش‌های ناموفق زیاد بود. چند دقیقه بعد دوباره تلاش کنید.', 'wp-sms-panel' ) ) );
+		}
+
+		$login = isset( $_POST['login'] ) ? sanitize_text_field( wp_unslash( $_POST['login'] ) ) : '';
+		$pass  = isset( $_POST['password'] ) ? (string) wp_unslash( $_POST['password'] ) : '';
+
+		if ( '' === $login || '' === $pass ) {
+			wp_send_json_error( array( 'message' => __( 'نام کاربری و رمز عبور را وارد کنید.', 'wp-sms-panel' ) ) );
+		}
+
+		$user = wp_signon(
+			array(
+				'user_login'    => $login,
+				'user_password' => $pass,
+				'remember'      => true,
+			),
+			is_ssl()
+		);
+
+		if ( is_wp_error( $user ) ) {
+			set_transient( $key, (int) get_transient( $key ) + 1, 15 * MINUTE_IN_SECONDS );
+			// Generic message — don't reveal whether the account exists.
+			wp_send_json_error( array( 'message' => __( 'نام کاربری یا رمز عبور نادرست است.', 'wp-sms-panel' ) ) );
+		}
+
+		delete_transient( $key );
+
+		$redirect = wp_validate_redirect( isset( $_POST['redirect'] ) ? wp_unslash( $_POST['redirect'] ) : '', '' );
+		if ( empty( $redirect ) ) {
+			$redirect = admin_url();
+		}
+		wp_send_json_success( array( 'redirect' => $redirect ) );
+	}
+
+	/**
+	 * Best-effort client IP for throttling (not used for trust decisions).
+	 *
+	 * @return string
+	 */
+	private function client_ip() {
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : '0.0.0.0';
+		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '0.0.0.0';
 	}
 
 	/**

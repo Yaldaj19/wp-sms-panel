@@ -3,7 +3,7 @@
  * Plugin Name:       WP SMS Panel
  * Plugin URI:        https://wordpress.org/plugins/wp-sms-panel
  * Description:       پنل پیامک عمومی برای وردپرس — اتصال به درگاه‌های پیامک ایرانی (کاوه‌نگار، SMS.ir، ملی‌پیامک، قاصدک، فراز‌اس‌ام‌اس/IPPanel، پارس‌گرین، آموت‌اس‌ام‌اس، مدیانا)، ورود/ثبت‌نام با کد یک‌بارمصرف (OTP)، شورت‌کد فرم و API ساده برای ارسال پیامک.
- * Version:           2.0.0
+ * Version:           2.1.0
  * Author:            Yalda Jahanshahi
  * Text Domain:       wp-sms-panel
  * Domain Path:       /languages
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WP_SMS_PANEL_VERSION', '2.0.0' );
+define( 'WP_SMS_PANEL_VERSION', '2.1.0' );
 define( 'WP_SMS_PANEL_FILE', __FILE__ );
 define( 'WP_SMS_PANEL_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WP_SMS_PANEL_URL', plugin_dir_url( __FILE__ ) );
