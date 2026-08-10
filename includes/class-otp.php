@@ -108,30 +108,15 @@ class WP_SMS_Panel_OTP {
 		wp_enqueue_script( 'wp-sms-panel' );
 		?>
 		<style>
-			#wpsp-login { margin-bottom: 16px; }
+			#wpsp-login { margin-bottom: 8px; }
 			#wpsp-login .wpsp-login-title { margin: 0 0 10px; font-size: 14px; font-weight: 700; color: #1d2327; text-align: center; }
-			#wpsp-show-native { display: block; width: 100%; margin: 14px auto 2px; text-align: center; }
-			/* Hidden only when JS is active, so no-JS users can always use the native form. */
-			.wpsp-hide-native #loginform { display: none; }
-			.wpsp-hide-native #nav { text-align: center; }
+			/* Both methods are shown equally: phone-OTP widget above + the native
+			   username/password form below, separated by a labelled divider. Identical on
+			   desktop and mobile (no device gating). */
+			.wpsp-login-sep { position: relative; text-align: center; margin: 18px 0 6px; }
+			.wpsp-login-sep::before { content: ""; position: absolute; top: 50%; left: 0; right: 0; border-top: 1px solid #dcdcde; }
+			.wpsp-login-sep span { position: relative; background: #fff; padding: 0 10px; color: #646970; font-size: 12px; }
 		</style>
-		<script>
-			document.documentElement.classList.add( 'wpsp-hide-native' );
-			document.addEventListener( 'DOMContentLoaded', function () {
-				var btn  = document.getElementById( 'wpsp-show-native' );
-				var form = document.getElementById( 'loginform' );
-				if ( ! btn || ! form ) {
-					document.documentElement.classList.remove( 'wpsp-hide-native' );
-					return;
-				}
-				btn.addEventListener( 'click', function () {
-					document.documentElement.classList.remove( 'wpsp-hide-native' );
-					btn.setAttribute( 'hidden', '' );
-					var first = form.querySelector( 'input:not([type=hidden])' );
-					if ( first ) { first.focus(); }
-				} );
-			} );
-		</script>
 		<?php
 	}
 
@@ -156,10 +141,10 @@ class WP_SMS_Panel_OTP {
 
 		$html  = '<div id="wpsp-login">';
 		$html .= '<p class="wpsp-login-title">' . esc_html( $title ) . '</p>';
-		// Phone-only on wp-login.php; the native WP form is the password method.
+		// Phone-OTP widget. The native WP username/password form stays visible right
+		// below (shown equally, not hidden behind a button), separated by a divider.
 		$html .= $this->render_form( array( 'password_switch' => false ) );
-		$html .= '<button type="button" id="wpsp-show-native" class="button button-secondary">'
-			. esc_html__( 'ورود با نام کاربری و رمز', 'wp-sms-panel' ) . '</button>';
+		$html .= '<p class="wpsp-login-sep"><span>' . esc_html__( 'یا با نام کاربری و رمز عبور', 'wp-sms-panel' ) . '</span></p>';
 		$html .= '</div>';
 
 		return $html . $message;
@@ -174,6 +159,7 @@ class WP_SMS_Panel_OTP {
 				'button_text' => __( 'ورود', 'wp-sms-panel' ),
 				'accent'      => $style['accent'],
 				'placeholder' => '09xxxxxxxxx',
+				'yj19_type'   => '',
 			),
 			$atts,
 			'wp_sms_panel_form'
@@ -218,6 +204,7 @@ class WP_SMS_Panel_OTP {
 				'button_text' => __( 'ورود', 'wp-sms-panel' ),
 				'accent'      => $style['accent'],
 				'placeholder' => '09xxxxxxxxx',
+				'yj19_type'   => '',
 			)
 		);
 
@@ -242,7 +229,8 @@ class WP_SMS_Panel_OTP {
 		ob_start();
 		?>
 		<div class="wpsp-form" style="<?php echo esc_attr( $css_style ); ?>"
-			data-digits="<?php echo esc_attr( $digits ); ?>" dir="rtl">
+			data-digits="<?php echo esc_attr( $digits ); ?>" dir="rtl"
+			<?php if ( ! empty( $atts['yj19_type'] ) ) echo 'data-yj19-type="' . esc_attr( $atts['yj19_type'] ) . '"'; ?>>
 
 			<?php if ( $pass_on ) : ?>
 			<!-- Mode switch -->
@@ -409,15 +397,19 @@ class WP_SMS_Panel_OTP {
 			wp_send_json_error( array( 'message' => $user->get_error_message() ) );
 		}
 
+		$yj19_type = isset( $_POST['yj19_type'] ) ? sanitize_text_field( wp_unslash( $_POST['yj19_type'] ) ) : '';
+
 		wp_clear_auth_cookie();
 		wp_set_current_user( $user->ID );
 		wp_set_auth_cookie( $user->ID, true );
 		do_action( 'wp_login', $user->user_login, $user );
+		do_action( 'wp_sms_panel_user_authenticated', $user, $yj19_type );
 
 		$redirect = wp_validate_redirect( isset( $_POST['redirect'] ) ? wp_unslash( $_POST['redirect'] ) : '', '' );
 		if ( empty( $redirect ) ) {
 			$redirect = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url( '/' );
 		}
+		$redirect = apply_filters( 'wp_sms_panel_redirect', $redirect, $user, $yj19_type );
 		wp_send_json_success( array( 'redirect' => $redirect ) );
 	}
 
