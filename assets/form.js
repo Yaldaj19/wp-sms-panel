@@ -74,7 +74,7 @@
         }
 
         setLoading($btn, true);
-        ajax("wp_sms_panel_verify", { phone: phone, code: code, redirect: window.location.href })
+        ajax("wp_sms_panel_verify", { phone: phone, code: code, redirect: window.location.href, yj19_type: $form.data('yj19Type') || '' })
             .done(function (res) {
                 if (res && res.success) {
                     setMessage($form, WPSMSPanel.i18n.success || "", "ok");
